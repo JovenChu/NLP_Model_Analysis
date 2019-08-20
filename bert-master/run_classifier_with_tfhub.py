@@ -12,7 +12,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-"""BERT finetuning runner with TF-Hub."""
+"""BERT finetuning runner with TF-Hub.（用于bert模型的迁移学习）"""
 
 from __future__ import absolute_import
 from __future__ import division

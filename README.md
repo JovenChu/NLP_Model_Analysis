@@ -142,8 +142,6 @@ My imitate and any ideas for NLP Research
          - masked_lm_positions：被遮盖的词的位置
          - max_seq_length：最大序列（样本句子）长度
          - max_predictions_per_seq：每个序列（样本句子）中被遮盖的最大词长
-       - Key logic:
-       
        
      
    - Analysis the modeling：
@@ -162,9 +160,16 @@ My imitate and any ideas for NLP Research
          * get_train_examples(self,fata_dir)、get_dev_examples()、get_test_examples()：需要有三个读取csv、tsv、txt等的函数，分别对应train、eval和predict三种模式。返回的是create_example()方法得到的样本列表
          * get_label()：定义任务的标签种类
          * create_example()：将数据中的id、text、label录入进入列表`example`中，以此完成数据的初始化。
-         * 
 
        * Shuffle data：`d = d.shuffle(buffer_size=100)` 设置数据的扰乱系数，从而避免训练时使用单一label的文本进行不平衡训练。
+       
+       * 接下来需要处理数据以适合bert进行训练。步骤依次如下：
+         - 单词全部小写
+         - 将文本转换成序列（如：‘sally says hi’ -> ['sally','says','hi']）
+         - 将单词分解为wordpieces（如：‘calling’->['call','##ing']）
+         - 用bert提供的词汇文件进行单词索引映射
+         - 添加‘CLS’,'SEP'标记符
+         - 每次输入添加‘index’和‘segment’标记
 
      * Convert example to feature:
 
@@ -206,7 +211,15 @@ My imitate and any ideas for NLP Research
      * Training：
        * tf.contrib.tpu.TPUEstimator.train()：
        * 输入：train_file = “train.tf_record”、max_steps（训练步长=（样本数/batch_size * epoch））
-       *  
+       * 输出：checkpoint 模型文件
+
+         
+
+   - Squad:
+
+     
+
+   - Sequence pair:
 
 2. Faster Transformer
 

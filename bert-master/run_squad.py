@@ -12,7 +12,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-"""Run BERT on SQuAD 1.1 and SQuAD 2.0."""
+"""Run BERT on SQuAD 1.1 and SQuAD 2.0.（将bert用于问答数据集中训练，是句子关系级别的模型）"""
 
 from __future__ import absolute_import
 from __future__ import division
