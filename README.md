@@ -112,52 +112,104 @@ My imitate and any ideas for NLP Research
 
    * Build the environment：
 
-     * Create environment：
+     - Create environment：
 
        ```shell
        $ conda create -n bert python=3.6
        $ source activate bert
        ```
 
-     * Tensorflow：
+     - Tensorflow：
 
        ```shell
        $ pip install tensorflow # When you only use cpu to fine tune.Must >=1.11.0.
        $ pip install tensorflow-gpu # Using GPU to fine tune.Must match your CUDA version.
        ```
 
-     * Collections：提供`namedtuple`、`deque`、`defaultdict`、`OrdereDict`、`Counter`等的方法，用于tuple、list、dict等删减，以及字符数量统计。
+     - Collections：提供`namedtuple`、`deque`、`defaultdict`、`OrdereDict`、`Counter`等的方法，用于tuple、list、dict等删减，以及字符数量统计。
 
        ```shell
        $ pip isntall collections
        ```
 
-     * Others
+       
 
-   * Create pertraining data：
 
-     * Class Training Instance:
-       * setting the parameter：
-         * instances , tokenizer , max_seq_length, max_predictions_per_seq, output_file
-         * masked_lm_positions：被遮盖的词的位置
-         * max_seq_length：最大序列（样本句子）长度
-         * max_predictions_per_seq：每个序列（样本句子）中被遮盖的最大词长
-       * Key logic:
-     * othsers
+   - Create pertraining data：
+     - Class Training Instance:对单个句子的训练实例
+       - setting the parameter：
+         - instances , tokenizer , max_seq_length, max_predictions_per_seq, output_file
+         - masked_lm_positions：被遮盖的词的位置
+         - max_seq_length：最大序列（样本句子）长度
+         - max_predictions_per_seq：每个序列（样本句子）中被遮盖的最大词长
+       - Key logic:
+       
+       
+     
+   - Analysis the modeling：
 
-   * Optimization：
+     * Input the data:
 
-   * Tokenization：
+       * Parameter setting:
 
-   * Extract_Features：
+         * guid: Unique id, 样本的唯一标识
+         * tesxt_a：untokenized text, 未分词的序列文本。在单一序列任务中，仅text_a参数不能为空。
+         * text_b：与text_a类似，用于序列（句子）对的任务中不能为空。
+         * label：序列样本的标签，在train/evaluation中不能为空，predict任务中可以为空。
 
-   * Analysis the modeling：
+       * DataProcess class:
 
-   * 
+         * get_train_examples(self,fata_dir)、get_dev_examples()、get_test_examples()：需要有三个读取csv、tsv、txt等的函数，分别对应train、eval和predict三种模式。返回的是create_example()方法得到的样本列表
+         * get_label()：定义任务的标签种类
+         * create_example()：将数据中的id、text、label录入进入列表`example`中，以此完成数据的初始化。
+         * 
+
+       * Shuffle data：`d = d.shuffle(buffer_size=100)` 设置数据的扰乱系数，从而避免训练时使用单一label的文本进行不平衡训练。
+
+     * Convert example to feature:
+
+       * file_based_convert_examples_to_features()：作用是遍历examples列表，将单个的example转换成适用于bert的特征表示
+
+       * BERT的特征表示形式：
+
+         ```
+         (a) For sequence pairs（句子对）:
+         tokens:   [CLS] is this jack ##son ##ville ? [SEP] no it is not . [SEP]
+         type_ids: 0     0  0    0    0     0       0 0     1  1  1  1   1 1
+         
+         (b) For single sequences（单一文本）:
+         tokens:   [CLS] the dog is hairy . [SEP]
+         type_ids: 0     0   0   0  0     0 0
+         ```
+
+       * 输入输出：
+
+         * 输入：examples = get_train_examples()、label_list = get_label()
+         * 输出：feature = InputFeatures(input_ids,input_mask,segment_ids,label_id,is_real_example=True)
+
+       * 最后将examples、labels、input_ids、input_mask、segment_ids、features等写入到模型输出路径的`output/train.tf_record`文件当中。**该文件包含模型训练所需的所有特征和参数。**
+
+     * Tokenization for processing sequence to token：
+
+       - 初始化并获取分割sequence成token的接口，in `tokenization.py`
+
+         ```python
+         tokenizer = tokenization.FullTokenizer(
+             vocab_file=FLAGS.vocab_file, do_lower_case=FLAGS.do_lower_case)
+         ```
+
+       - 输入输出：
+
+         - 输入：vocab_file（bert模型中的id2embedding词表）、do_lower_case（是否忽略大小写，默认为True）
+         - 输出：tokenizer（基于bert词表的token分割器）
+
+     * Training：
+       * tf.contrib.tpu.TPUEstimator.train()：
+       * 输入：train_file = “train.tf_record”、max_steps（训练步长=（样本数/batch_size * epoch））
+       *  
 
 2. Faster Transformer
 
-![image-20190820142234262](http://ww4.sinaimg.cn/large/006tNc79gy1g664hiiaojj31dv0c20un.jpg)
 
 
 

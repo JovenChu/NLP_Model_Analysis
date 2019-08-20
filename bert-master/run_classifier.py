@@ -790,41 +790,44 @@ def main(_):
       "xnli": XnliProcessor,
   }
 
+    # 使用tokenization来验证checkpoint文件
   tokenization.validate_case_matches_checkpoint(FLAGS.do_lower_case,
                                                 FLAGS.init_checkpoint)
-
+    # 选择模式的验证
   if not FLAGS.do_train and not FLAGS.do_eval and not FLAGS.do_predict:
     raise ValueError(
         "At least one of `do_train`, `do_eval` or `do_predict' must be True.")
-
+    # 加载训练好bert_base/bert_large的预训练语言模型参数
   bert_config = modeling.BertConfig.from_json_file(FLAGS.bert_config_file)
-
+    #  检查定义的最大序列长度是否超过预训练语言模型的最长度
   if FLAGS.max_seq_length > bert_config.max_position_embeddings:
     raise ValueError(
         "Cannot use sequence length %d because the BERT model "
         "was only trained up to sequence length %d" %
         (FLAGS.max_seq_length, bert_config.max_position_embeddings))
 
+    # 创建输出文件夹
   tf.gfile.MakeDirs(FLAGS.output_dir)
-
+    # 获取任务名称，忽略大小写，统一小写
   task_name = FLAGS.task_name.lower()
-
+    # 检查是否存在任务名称，按数据集划分任务名
   if task_name not in processors:
     raise ValueError("Task not found: %s" % (task_name))
-
+    # 获得任务名的数据处理名称
   processor = processors[task_name]()
-
+    # 获取标签列表
   label_list = processor.get_labels()
-
+    # 生成基于bert词表的token分割器
   tokenizer = tokenization.FullTokenizer(
       vocab_file=FLAGS.vocab_file, do_lower_case=FLAGS.do_lower_case)
-
+    # 是否使用tpu及其参数设置
   tpu_cluster_resolver = None
   if FLAGS.use_tpu and FLAGS.tpu_name:
     tpu_cluster_resolver = tf.contrib.cluster_resolver.TPUClusterResolver(
         FLAGS.tpu_name, zone=FLAGS.tpu_zone, project=FLAGS.gcp_project)
 
   is_per_host = tf.contrib.tpu.InputPipelineConfig.PER_HOST_V2
+  # 运行参数设置，在此处可以设置tf-xla加速模型训练和预测的相关参数
   run_config = tf.contrib.tpu.RunConfig(
       cluster=tpu_cluster_resolver,
       master=FLAGS.master,
@@ -838,12 +841,17 @@ def main(_):
   train_examples = None
   num_train_steps = None
   num_warmup_steps = None
+
+  # 进入模型训练模式
   if FLAGS.do_train:
+      # 获取模型训练的样本
     train_examples = processor.get_train_examples(FLAGS.data_dir)
+      # 计算训练所需的步长：训练步长=（样本数/batch_size * epoch）
     num_train_steps = int(
         len(train_examples) / FLAGS.train_batch_size * FLAGS.num_train_epochs)
     num_warmup_steps = int(num_train_steps * FLAGS.warmup_proportion)
 
+   # 初始化模型，录入参数
   model_fn = model_fn_builder(
       bert_config=bert_config,
       num_labels=len(label_list),
@@ -865,6 +873,7 @@ def main(_):
       predict_batch_size=FLAGS.predict_batch_size)
 
   if FLAGS.do_train:
+      # 加载训练所需的所有样本、特征及其参数
     train_file = os.path.join(FLAGS.output_dir, "train.tf_record")
     file_based_convert_examples_to_features(
         train_examples, label_list, FLAGS.max_seq_length, tokenizer, train_file)
@@ -877,8 +886,10 @@ def main(_):
         seq_length=FLAGS.max_seq_length,
         is_training=True,
         drop_remainder=True)
+      # 开始训练
     estimator.train(input_fn=train_input_fn, max_steps=num_train_steps)
 
+    # 模型验证模式
   if FLAGS.do_eval:
     eval_examples = processor.get_dev_examples(FLAGS.data_dir)
     num_actual_eval_examples = len(eval_examples)
@@ -915,9 +926,8 @@ def main(_):
         seq_length=FLAGS.max_seq_length,
         is_training=False,
         drop_remainder=eval_drop_remainder)
-
+    # 开始预测并获得验证的结果，写入文件中
     result = estimator.evaluate(input_fn=eval_input_fn, steps=eval_steps)
-
     output_eval_file = os.path.join(FLAGS.output_dir, "eval_results.txt")
     with tf.gfile.GFile(output_eval_file, "w") as writer:
       tf.logging.info("***** Eval results *****")
@@ -925,6 +935,7 @@ def main(_):
         tf.logging.info("  %s = %s", key, str(result[key]))
         writer.write("%s = %s\n" % (key, str(result[key])))
 
+    # 模型预测模式
   if FLAGS.do_predict:
     predict_examples = processor.get_test_examples(FLAGS.data_dir)
     num_actual_predict_examples = len(predict_examples)
