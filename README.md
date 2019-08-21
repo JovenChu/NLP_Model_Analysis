@@ -10,6 +10,7 @@ My imitate and any ideas for NLP Research
    * **BERT模型分析**
 
      BERT的全称是Bidirectional Encoder Representation from Transformers，即双向Transformer的Encoder，因为decoder是不能获要预测的信息的。模型的主要创新点都在pre-train方法上，即用了Masked LM和Next Sentence Prediction两种方法分别捕捉词语和句子级别的representation。
+     ![2019-08-21-021202](https://joven-1252328025.cos.ap-shanghai.myqcloud.com/2019-08-21-021652.png)
 
      - **模型结构**
 
@@ -65,7 +66,7 @@ My imitate and any ideas for NLP Research
 
        * 其他预测任务需要进行一些调整，如图：
 
-         ![img](https://pic2.zhimg.com/80/v2-b054e303cdafa0ce41ad761d5d0314e1_hd.jpg)
+         ![2019-08-21-021223](https://joven-1252328025.cos.ap-shanghai.myqcloud.com/2019-08-21-021624.png)
 
        * 可以调整的参数和取值范围有：
          * Batch size: 16, 32
