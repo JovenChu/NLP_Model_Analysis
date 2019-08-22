@@ -625,7 +625,7 @@ def attention_layer(from_tensor,
   Raises:
     ValueError: Any of the arguments or tensor shapes are invalid.
   """
-
+    # 计算分数所输出的张量矩阵的转置函数。
   def transpose_for_scores(input_tensor, batch_size, num_attention_heads,
                            seq_length, width):
     output_tensor = tf.reshape(
@@ -662,6 +662,7 @@ def attention_layer(from_tensor,
   from_tensor_2d = reshape_to_matrix(from_tensor)
   to_tensor_2d = reshape_to_matrix(to_tensor)
 
+  # 计算了Q、K、V三个基于序列token的变量
   # `query_layer` = [B*F, N*H]
   query_layer = tf.layers.dense(
       from_tensor_2d,
@@ -776,10 +777,10 @@ def transformer_model(input_tensor,
     input_tensor: float Tensor of shape [batch_size, seq_length, hidden_size].
     attention_mask: (optional) int32 Tensor of shape [batch_size, seq_length,
       seq_length], with 1 for positions that can be attended to and 0 in
-      positions that should not be.
-    hidden_size: int. Hidden size of the Transformer.
-    num_hidden_layers: int. Number of layers (blocks) in the Transformer.
-    num_attention_heads: int. Number of attention heads in the Transformer.
+      positions that should not be.输入的张量。
+    hidden_size: int. Hidden size of the Transformer.模型设置的隐层数。
+    num_hidden_layers: int. Number of layers (blocks) in the Transformer.模型的注意力层数。
+    num_attention_heads: int. Number of attention heads in the Transformer.模型的注意力头个数
     intermediate_size: int. The size of the "intermediate" (a.k.a., feed
       forward) layer.
     intermediate_act_fn: function. The non-linear activation function to apply
