@@ -118,7 +118,6 @@ My imitate and any ideas for NLP Research
       
       * Number of epochs: 3, 4
    
-    因为大部分参数都和预训练时一样，精调会快一些，所以作者推荐多试一些参数。
    
 * **BERT优缺点**
   
