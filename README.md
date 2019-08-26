@@ -163,7 +163,7 @@ My imitate and any ideas for NLP Research
 
            * 记号x<t表示t时刻之前的所有x，也就是x1:t−1。hθ(x1:t−1)是RNN或者Transformer(注：Transformer也可以用于语言模型，比如在OpenAI GPT)编码的t时刻之前的隐状态。e(x)是词x的embedding。
 
-             ![image-20190826114846530](/Users/jovenchu/Library/Application Support/typora-user-images/image-20190826114846530.png)
+             ![image-20190826114846530](https://joven-1252328025.cos.ap-shanghai.myqcloud.com/2019-08-26-100053.png)
 
        * AE（自编码，autoencoding）的原理和优劣：
 
@@ -194,7 +194,7 @@ My imitate and any ideas for NLP Research
 
        * 原理：
 
-         * ![20190706164606164](https://joven-1252328025.cos.ap-shanghai.myqcloud.com/2019-08-26-062712.png)
+         ![20190706164606164](https://joven-1252328025.cos.ap-shanghai.myqcloud.com/2019-08-26-062712.png)
 
          * 为了在内存的限制下让 Transformer 学到更长的依赖，Transformer-XL 借鉴了 TBPTT(Truncated Back-Propagation Through Time) 的思路，将上一个片段 s{t-1} 计算出来的表征缓存在内存里，加入到当前片段 s{t} 的表征计算中。
            ![img](https://joven-1252328025.cos.ap-shanghai.myqcloud.com/2019-08-26-062759.jpg)
